@@ -8,7 +8,7 @@ def commas_format(n):
 # s += val in a for loop.
 def commas_concat(n):
     s = ''
-    # Note that here and in concat, we stop at n < 1000 to reduce branching.
+    # Note that here and in join, we stop at n < 1000 to reduce branching.
     while n >= 1000:
         s = ',%03d' % (n % 1000) + s
         n //= 1000
@@ -23,7 +23,7 @@ def commas_join(n):
     lst.insert(0, str(n))
     return ','.join(lst)
 
-# SIlly regex solution. Shouldn't be faster, or is it...?
+# Silly regex solution. Shouldn't be faster, or is it...?
 def commas_regex(n):
     import re
     s = str(n)[::-1]
