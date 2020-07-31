@@ -30,21 +30,24 @@ def commas_regex(n):
     return ','.join(re.findall('..?.?', s))[::-1]
 
 runtimes = {}
+MAX_LENGTH = 10000
 for f in [commas_format, commas_join, commas_concat, commas_regex]:
     name = f.__name__
     # Sanity check to make sure that all impls yield the same output.
     print(name, ':', f(1234567890))
     runtimes[name] = []
-    for l in range(1, 100):
-        n = 10 ** l
+    for L in range(10, MAX_LENGTH, 10):
+        n = 10 ** L
         runtimes[name].append(timeit.timeit(
             '%s(%d)' % (name, n),
             setup='from __main__ import %s' % name,
-            number=10000))
+            number=10000 // L))
 
-xs = range(1, 100)
+xs = range(10, MAX_LENGTH, 10)
 for fn in runtimes:
     plt.plot(xs, runtimes[fn], label=fn)
 
 plt.legend()
+plt.xlabel('digits')
+plt.ylabel('time (s)')
 plt.show()

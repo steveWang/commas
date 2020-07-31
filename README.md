@@ -37,3 +37,13 @@ math is expensive.
 gist](https://gist.github.com/llllllllll/7ad5905275233f1fb3868f4a67793616)
 posted on HN, which reminded me of a fizzbuzz-style question a colleague asks in
 interviews.)
+
+Benchmarks rerun with larger scales yield... interesting results:
+
+![More benchmarks](commas_10k.png)
+
+![Zoomed in on the bottom two lines](commas_10k_fast.png)
+
+I don't know why there are downward spikes at certain points. JIT optimizations kicking
+in after a certain number of executions? These benchmarks are also not at all
+scientific.
