@@ -1,6 +1,12 @@
 import timeit
 import matplotlib.pyplot as plt
 
+# Parameters of the benchmark.
+MAX_LENGTH = 100
+ITERATIONS = 10000
+START = 1
+STEP = 1
+
 # Use built in string formatting.
 def commas_format(n):
     return '{:,}'.format(n)
@@ -23,6 +29,63 @@ def commas_join(n):
     lst.insert(0, str(n))
     return ','.join(lst)
 
+# String slicing, with string concatenation in a loop.
+def commas_concat2(n):
+    n = str(n)
+    offset = len(n) % 3
+    if offset == 0:
+        offset = 3
+
+    s = ''
+    for i in range(len(n), 3, -3):
+        s = ',' + n[i-3:i] + s
+    return n[:offset] + s
+
+# String slicing, with string appends instead of prepends.
+def commas_concat3(n):
+    n = str(n)
+    s = ''
+    offset = len(n) % 3
+    if offset == 0:
+        offset = 3
+    if offset != 0:
+        s = n[:offset]
+    for i in range(offset, len(n), 3):
+        s += ',' + n[i:i+3]
+    return s
+
+# String-slicing, with joined slices.
+def commas_join2(n):
+    n = str(n)
+    lst = []
+    offset = len(n) % 3
+    if offset == 0:
+        offset = 3
+    for i in range(len(n), 3, -3):
+        lst.insert(0, n[i-3:i])
+    lst.insert(0, n[:offset])
+    return ','.join(lst)
+
+def commas_join3(n):
+    n = str(n)
+    offset = len(n) % 3
+    if offset == 0:
+        offset = 3
+    lst = [n[:offset]]
+    for i in range(offset, len(n), 3):
+        lst.append(n[i:i+3])
+    return ','.join(lst)
+
+# String-slicing via list comprehension, with joined slices.
+def commas_join4(n):
+    n = str(n)
+    offset = len(n) % 3
+    if offset == 0:
+        offset = 3
+    lst = [n[i:i+3] for i in range(offset, len(n), 3)]
+    lst.insert(0, n[:offset])
+    return ','.join(lst)
+
 # Silly regex solution. Shouldn't be faster, or is it...?
 def commas_regex(n):
     import re
@@ -30,20 +93,21 @@ def commas_regex(n):
     return ','.join(re.findall('..?.?', s))[::-1]
 
 runtimes = {}
-MAX_LENGTH = 10000
-for f in [commas_format, commas_join, commas_concat, commas_regex]:
+for f in [commas_format, commas_regex, commas_concat, commas_concat2, commas_concat3, commas_join, commas_join2, commas_join3, commas_join4]:
     name = f.__name__
     # Sanity check to make sure that all impls yield the same output.
     print(name, ':', f(1234567890))
     runtimes[name] = []
-    for L in range(10, MAX_LENGTH, 10):
-        n = 10 ** L
-        runtimes[name].append(timeit.timeit(
-            '%s(%d)' % (name, n),
-            setup='from __main__ import %s' % name,
-            number=10000 // L))
+    n = 10 ** (START - STEP)
 
-xs = range(10, MAX_LENGTH, 10)
+    for L in range(START, MAX_LENGTH, STEP):
+        n *= 10 ** STEP
+        runtimes[name].append(timeit.timeit(
+            '%s(N)' % name,
+            setup='from __main__ import %s; N=%d' % (name, n),
+            number=ITERATIONS))
+
+xs = range(START, MAX_LENGTH, STEP)
 for fn in runtimes:
     plt.plot(xs, runtimes[fn], label=fn)
 
